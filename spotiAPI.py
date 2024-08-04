@@ -3,7 +3,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 # Authentification
-auth_manager = SpotifyClientCredentials(client_id='e96dfcad14a340c5b1cf9fc167eecb51', client_secret='999f2ce1156f4eccb738ff5d1abcaaff')
+auth_manager = SpotifyClientCredentials(client_id='', client_secret='')
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
 # Récupérer les genres disponibles
