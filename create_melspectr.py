@@ -1,0 +1,54 @@
+import os
+import librosa
+import librosa.display
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Define the base paths
+input_base_path = 'downloaded_previews'
+output_base_path = 'MELs'
+
+os.makedirs(output_base_path, exist_ok=True)
+genres = [d for d in os.listdir(input_base_path) if os.path.isdir(os.path.join(input_base_path, d))]
+
+def process_genre(genre):
+    input_folder = os.path.join(input_base_path, genre)
+    output_folder = os.path.join(output_base_path, genre)
+    
+    # Make sure the output genre folder exists
+    os.makedirs(output_folder, exist_ok=True)
+    
+    # Process each file in the genre folder
+    for filename in os.listdir(input_folder):
+        if filename.endswith('.wav'):
+            file_path = os.path.join(input_folder, filename)
+            
+            # Load audio file
+            y, sr = librosa.load(file_path, sr=None)
+            
+            # Compute Mel-spectrogram
+            mel_spec = librosa.feature.melspectrogram(y=y, sr=sr)
+            mel_spec_db = librosa.amplitude_to_db(mel_spec, ref=np.max)
+            
+            # Create the figure and remove axes
+            fig, ax = plt.subplots()
+            fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
+            
+            # Plot the Mel-spectrogram
+            librosa.display.specshow(mel_spec_db, sr=sr, x_axis=None, ax=ax)
+            
+            # Remove axes
+            ax.axis('off')
+            
+            # Save the plot as an image file
+            output_file_path = os.path.join(output_folder, f'{os.path.splitext(filename)[0]}.png')
+            fig.savefig(output_file_path, bbox_inches='tight', pad_inches=0)
+            plt.close(fig)
+            
+            # Remove the .wav file after processing
+            os.remove(file_path)
+
+# Process each genre
+for genre in genres:
+    process_genre(genre)
+    print(f'Processed {genre}')

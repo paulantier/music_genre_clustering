@@ -1,0 +1,67 @@
+import os
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+# Fonction pour télécharger une preview et l'enregistrer en tant que fichier WAV
+def download_preview_and_save(track_info):
+    name = track_info['name'].replace("/", "_").replace('"', "").replace(":", "").replace(".", "").replace("\\", "_").replace("?", "").replace("|", "").replace("*", "")
+    artist = track_info['artist'].replace("/", "_").replace('"', "").replace(":", "").replace(".", "").replace("\\", "_").replace("?", "").replace("|", "").replace("*", "")
+    preview_url = track_info['preview_url']
+    genres = track_info['genres']
+
+    if preview_url and preview_url != 'None':
+        response = requests.get(preview_url)
+        if response.status_code == 200:
+            # Créer un dossier pour les fichiers téléchargés s'il n'existe pas déjà
+            folder = 'CLUSTERING/downloaded_previews'
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+            # Enregistrer le fichier WAV dans le dossier
+            filename = os.path.join(folder, f"{artist} - {name}.wav")
+            with open(filename, 'wb') as f:
+                f.write(response.content)
+            print(f"Preview téléchargée et enregistrée : {filename}")
+
+            # Enregistrer les genres dans un fichier texte du même nom
+            genre_filename = os.path.join(folder, f"{artist} - {name}.txt")
+            with open(genre_filename, 'w', encoding='utf-8') as f:
+                for genre in genres:
+                    f.write(f"{genre}\n")
+            print(f"Genres enregistrés : {genre_filename}")
+        else:
+            print(f"Échec du téléchargement de la preview pour {name} - {artist}")
+    else:
+        print(f"Aucune URL de preview pour {name} - {artist}")
+
+# Lire le fichier all_tracks_with_genres.txt et soumettre les tâches au pool de threads
+def process_tracks(file_path, executor):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    track_info = {}
+    for i, line in enumerate(lines):
+        if line.strip() == '':
+            if track_info:
+                executor.submit(download_preview_and_save, track_info)
+            track_info = {}
+        else:
+            if 'Genres:' in line:
+                track_info['genres'] = [genre.strip() for genre in line.replace('Genres:', '').split(',')]
+            elif not 'preview_url' in track_info:
+                if 'http' in line:
+                    track_info['preview_url'] = line.strip()
+                elif 'artist' in track_info:
+                    track_info['name'] = line.strip()
+                else:
+                    track_info['artist'] = line.strip()
+    # Soumettre la dernière tâche s'il y a des données restantes
+    if track_info:
+        executor.submit(download_preview_and_save, track_info)
+
+def main():
+    file_path = 'CLUSTERING/all_tracks_with_genres.txt'
+    with ThreadPoolExecutor(max_workers=10) as executor:  # Adjust the number of workers as needed
+        process_tracks(file_path, executor)
+
+if __name__ == "__main__":
+    main()
