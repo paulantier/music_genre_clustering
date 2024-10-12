@@ -7,7 +7,7 @@ The first step is to scrape a lot of labeled 30 seconds musical excerpts using t
 
 After i turned the audio .wav files into images of their MEL-spectograms that are supposed to be a decent representation of the differents frequencies that humans distinguish.
 
-With these pre-processing steps done, a basic classification CNN is trained to associate the images of the MEL-spectograms to their music genre. A few data augmentations were tried.
+With these pre-processing steps done, a basic classification CNN is trained to associate the images of the MEL-spectograms to their music genre. A few data augmentations have been tried.
 
 The final goal is to put a new spectogram into the CNN backbone and to get the values of the last featuremap.
 Gathering those values for a lot of differents music excerpts allows us to get a multi-dimensional representation of the audio similarities and differences of differents tracks.
