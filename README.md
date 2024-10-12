@@ -1,7 +1,7 @@
 # music_genre_clustering
 Creating 2D maps of different music genres using CNN feature extraction on MEL-spectrograms of music tracks
 
-The plan was to see how coherent music genre classification is in comparison of sound similarity.
+The plan was to see how coherent music genre classification is in comparison with sound similarity.
 
 The first step is to scrape a lot of labeled 30 seconds musical excerpts using the Spotify API, then to process the labels and reduce them to around 30 distinct genres.
 
